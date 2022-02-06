@@ -14,6 +14,8 @@ Distinguish cats with automated cat feeder
 - [ ] Switch Raspberry Pi Zero with Raspberry Pi 4
 - [ ] Add physical buttons (pause, reset, on-off switch)
 - [ ] LED indicator
+- [ ] Clean up cables
+- [ ] Monitor performance
 
 
 ## Software

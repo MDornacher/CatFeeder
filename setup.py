@@ -12,6 +12,11 @@ setup(
     install_requires=[
         "RPi.GPIO",
         "loguru",
+        "Pillow",
+        "python-telegram-bot",
+        "numpy",
+        "tflite-runtime",
+        "opencv-python",
     ],
     extras_require={
         "dev": [

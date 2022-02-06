@@ -17,7 +17,6 @@ class Feeder:
 
         mechanics.setup()
         mechanics.reset()
-
         logger.info("Feeder initiated")
 
     def is_open(self):
@@ -45,7 +44,7 @@ class Feeder:
             "Periodic reminder to check the food level "
             f"in the cat feeder ({self.food_cycles} cycles)"
         )
-        for recipient, chat_id in CHAT_IDS:
+        for recipient, chat_id in CHAT_IDS.items():
             logger.debug(f"Sending reminder to {recipient} ({chat_id})")
             bot.sendMessage(chat_id, message)
 
