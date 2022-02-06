@@ -4,6 +4,7 @@ from loguru import logger
 
 from notifications import bot, CHAT_IDS
 
+
 DAILY_FOOD_BALANCE = 6  # gram
 FEEDING_COOLDOWN = 30 * 60  # seconds
 
@@ -37,14 +38,19 @@ class Cat:
             f"Subtracting {package_size}g of {self.name}'s "
             f"{self.food_balance}g food balance."
         )
-        for chat_id in CHAT_IDS.values():
-            bot.sendMessage(chat_id, f"{self.name} is collecting {package_size}g of food")
-
         self.food_balance -= package_size
         logger.debug(f"{self.food_balance}g of food balance left")
+        for chat_id in CHAT_IDS.values():
+            bot.sendMessage(
+                chat_id,
+                f"{self.name} is collecting {package_size}g of food "
+                f"({DAILY_FOOD_BALANCE - self.food_balance}g total today)",
+            )
         self.last_feeding = datetime.datetime.now()
         return True
 
     def reset_balance(self) -> None:
-        logger.info(f"Resetting daily food balance for {self.name} ({self.food_balance}g left)")
+        logger.info(
+            f"Resetting daily food balance for {self.name} ({self.food_balance}g left)"
+        )
         self.food_balance = DAILY_FOOD_BALANCE

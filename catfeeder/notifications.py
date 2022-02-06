@@ -1,7 +1,9 @@
+import datetime
 from pathlib import Path
 
 import cv2
-from telegram import Bot
+import telegram
+from loguru import logger
 
 
 BOT_TOKEN = "5035559238:AAECCaFjCuToYx8EtTovtviFnsyvL9bo49Y"
@@ -10,18 +12,23 @@ CHAT_IDS = {
     "Verena": "740829591",
 }
 
-bot = Bot(BOT_TOKEN)
+bot = telegram.Bot(BOT_TOKEN)
 
 
 def send_boot_up_notifications():
-    for chat_id in CHAT_IDS.values():
+    logger.info("Sending out boot up notifications")
+    for recipient, chat_id in CHAT_IDS.items():
+        logger.debug(f"Sending notification to {recipient}")
         bot.sendMessage(chat_id, "AUTOMATED CAT FEEDER ONLINE")
 
 
 def send_frame(frame, name):
-    tmp_file = Path("/tmp/tmp_frame.jpg")
-    cv2.imwrite(str(tmp_file), frame)
-    with open(tmp_file, "rb") as file_ref:
-        for chat_id in CHAT_IDS.values():
-            bot.send_photo(chat_id, file_ref, caption=f"{name} is stopping by!")
-    tmp_file.unlink()
+    file_name = f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.jpg"
+    file_path = Path(f"/home/pi/Pictures/{file_name}")
+    cv2.imwrite(str(file_path), frame)
+    with open(file_path, "rb") as file_ref:
+        try:
+            for recipient, chat_id in CHAT_IDS.items():
+                bot.send_photo(chat_id, file_ref, caption=f"{name} is stopping by!")
+        except telegram.error.BadRequest:
+            logger.warning(f"Failed to send photo to {recipient}")
