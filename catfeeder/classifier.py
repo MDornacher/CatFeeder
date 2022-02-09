@@ -8,8 +8,6 @@ import tflite_runtime.interpreter as tflite
 MODEL_PATH = Path(__file__).parent.resolve() / "resources" / "model.tflite"
 LABELS_PATH = Path(__file__).parent.resolve() / "resources" / "labels.txt"
 
-TEST_IMAGE = Path(__file__).parent.resolve() / "resources" / "nadir.jpg"
-
 
 def load_labels():
     with open(LABELS_PATH, "r") as file_ref:

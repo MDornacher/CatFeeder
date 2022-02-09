@@ -10,8 +10,9 @@ from feeder import Feeder, FOOD_PACKAGE_SIZE
 from notifications import send_boot_up_notifications, send_frame
 
 
-SECONDS_BETWEEN_FRAMES = 1
-CONSECUTIVE_MATCHES = 10
+NIGHT_INTERVAL = 5 * 60  # seconds
+SECONDS_BETWEEN_FRAMES = 0.5
+CONSECUTIVE_MATCHES = 5
 PHOTO_COOLDOWN = 1 * 60  # seconds
 CLASSIFIER_THRESHOLD = 0.6
 
@@ -33,8 +34,13 @@ def _main():
 
     while True:
         try:
-            ret, frame = video_stream.read()
+            # effectively pause program during off hours
+            if not feeder.is_open():
+                logger.info(f"Feeder is currently closed, checking again in {NIGHT_INTERVAL} minutes")
+                time.sleep(NIGHT_INTERVAL)
+                continue
 
+            ret, frame = video_stream.read()
             # validate capture / stream
             if not ret:
                 logger.warning("Failed to capture image. Restarting video feed...")
@@ -68,19 +74,19 @@ def _main():
                 if (
                     match in cats
                     and len(set(short_term_match_history)) == 1
-                    and feeder.is_open()
                 ):
+                    # TODO check order again, temporarily changed to speed up dispensing of food
+                    if cats[match].feed(FOOD_PACKAGE_SIZE):
+                        feeder.dispense_food()
                     if (
                         last_photo is None
                         or (datetime.datetime.now() - last_photo).seconds
                         > PHOTO_COOLDOWN
                     ):
-                        send_frame(frame, match)
+                        send_frame(frame, cats[match].name)
                         last_photo = datetime.datetime.now()
-                    if cats[match].feed(FOOD_PACKAGE_SIZE):
-                        feeder.dispense_food()
 
-            # reset food balance after midnight
+            # reset food balance after midnight  # TODO check order again
             if datetime.datetime.now().time() < last_run:
                 logger.info("Resetting daily food balance")
                 for cat in cats.values():

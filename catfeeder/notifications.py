@@ -1,3 +1,4 @@
+import time
 import datetime
 from pathlib import Path
 
@@ -32,3 +33,4 @@ def send_frame(frame, name):
                 bot.send_photo(chat_id, file_ref, caption=f"{name} is stopping by!")
         except telegram.error.BadRequest:
             logger.warning(f"Failed to send photo to {recipient}")
+            # TODO happens every time for verena
