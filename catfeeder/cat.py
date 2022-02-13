@@ -5,7 +5,7 @@ from loguru import logger
 from notifications import bot, CHAT_IDS
 
 
-DAILY_FOOD_BALANCE = 18  # gram
+DAILY_FOOD_BALANCE = 6  # gram
 FEEDING_COOLDOWN = 90 * 60  # seconds
 
 

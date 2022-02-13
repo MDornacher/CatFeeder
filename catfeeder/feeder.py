@@ -7,26 +7,15 @@ from notifications import bot, CHAT_IDS
 
 FOOD_PACKAGE_SIZE = 6  # gram
 CYCLE_REMINDER = 10
-SHOP_HOURS = (datetime.time(6), datetime.time(22))
 
 
 class Feeder:
     def __init__(self):
         self.food_cycles = 0
-        self.shop_hours = SHOP_HOURS
 
         mechanics.setup()
         mechanics.reset()
         logger.info("Feeder initiated")
-
-    def is_open(self):
-        start_time, end_time = self.shop_hours
-        if start_time < datetime.datetime.now().time() < end_time:
-            return True
-        logger.info(
-            f"Food dispenser is currently closed and will open again at {start_time}"
-        )
-        return False
 
     def dispense_food(self) -> None:
         logger.info("Dispensing food")

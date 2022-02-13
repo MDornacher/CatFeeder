@@ -31,6 +31,6 @@ def send_frame(frame, name):
         try:
             for recipient, chat_id in CHAT_IDS.items():
                 bot.send_photo(chat_id, file_ref, caption=f"{name} is stopping by!")
+                time.sleep(3)
         except telegram.error.BadRequest:
             logger.warning(f"Failed to send photo to {recipient}")
-            # TODO happens every time for verena

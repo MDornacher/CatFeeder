@@ -9,35 +9,40 @@ MODEL_PATH = Path(__file__).parent.resolve() / "resources" / "model.tflite"
 LABELS_PATH = Path(__file__).parent.resolve() / "resources" / "labels.txt"
 
 
-def load_labels():
-    with open(LABELS_PATH, "r") as file_ref:
-        return file_ref.read().splitlines()
+class Classifier:
+    def __init__(self):
+        self.labels = None
+        self.load_labels()
 
+        self.interpreter = None
+        self.input_details = None
+        self.output_details = None
+        self.initiate_model()
 
-def initiate_model():
-    interpreter = tflite.Interpreter(
-        model_path=str(MODEL_PATH),
-    )
-    interpreter.allocate_tensors()
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
-    return interpreter, input_details, output_details
+        self.image_height = self.input_details[0]["shape"][1]
+        self.image_width = self.input_details[0]["shape"][2]
 
+    def load_labels(self):
+        with open(LABELS_PATH, "r") as file_ref:
+            self.labels = file_ref.read().splitlines()
 
-def evaluate_image(image, interpreter, input_details, output_details):
-    height = input_details[0]["shape"][1]
-    width = input_details[0]["shape"][2]
+    def initiate_model(self):
+        self.interpreter = tflite.Interpreter(
+            model_path=str(MODEL_PATH),
+        )
+        self.interpreter.allocate_tensors()
+        self.input_details = self.interpreter.get_input_details()
+        self.output_details = self.interpreter.get_output_details()
 
-    image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    image_resized = cv2.resize(image_rgb, (width, height))
+    def evaluate(self, image):
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image_resized = cv2.resize(image_rgb, (self.image_height, self.image_width))
 
-    input_data = np.expand_dims(image_resized, axis=0)
-    interpreter.set_tensor(input_details[0]["index"], input_data)
-    interpreter.invoke()
+        input_data = np.expand_dims(image_resized, axis=0)
+        self.interpreter.set_tensor(self.input_details[0]["index"], input_data)
+        self.interpreter.invoke()
+        output_data = self.interpreter.get_tensor(self.output_details[0]["index"])
+        results = np.squeeze(output_data)
 
-    output_data = interpreter.get_tensor(output_details[0]["index"])
-    results = np.squeeze(output_data)
-
-    top_match, *_ = results.argsort()[::-1]
-    labels = load_labels()
-    return labels[top_match], float(results[top_match] / 255.0)
+        top_match, *_ = results.argsort()[::-1]
+        return self.labels[top_match], float(results[top_match] / 255.0)
