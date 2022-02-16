@@ -30,8 +30,8 @@ class Bank:
 
         self.bank_hours = BANK_HOURS
         self.short_term_match_history = deque([None] * CONSECUTIVE_MATCHES, maxlen=CONSECUTIVE_MATCHES)
-        self.last_run = datetime.datetime.now().time()
         self.last_photo = None
+        self.active = True
 
     def run(self):
         send_boot_up_notifications()
@@ -39,17 +39,17 @@ class Bank:
             # effectively pause program during off hours
             if not self._is_open():
                 # TODO: do this with just one sleep cycle
+                if self.active:
+                    logger.info("Resetting daily food balance and sending daily reports")
+                    for cat in self.cats.values():
+                        cat.reset_balance()
+                        cat.send_daily_report()
+                    logger.info("Food bank is now closed for today")
+                    self.active = False
                 time.sleep(NIGHT_INTERVAL)
                 continue
-
-            # reset food balance after midnight
-            if datetime.datetime.now().time() < self.last_run:
-                logger.info("Resetting daily food balance")
-                for cat in self.cats.values():
-                    cat.reset_balance()
-
-            # start of regular cycle
-            self.last_run = datetime.datetime.now().time()
+            else:
+                self.active = True
 
             # run classifier on frame
             frame = capture_frame(self.video_stream)
