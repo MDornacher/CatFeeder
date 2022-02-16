@@ -66,7 +66,9 @@ class Bank:
                 self.last_photo = datetime.datetime.now()
 
             # control video capture cycle length
-            time.sleep(SECONDS_BETWEEN_FRAMES)
+            time.sleep(
+                SECONDS_BETWEEN_FRAMES
+            )  # TODO: continue with while loop with condition instead
 
     def _is_open(self):
         start_time, end_time = self.bank_hours

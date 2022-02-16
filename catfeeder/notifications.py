@@ -1,17 +1,13 @@
-import time
 import datetime
+import time
 from pathlib import Path
 
 import cv2
 import telegram
 from loguru import logger
 
+from secrets import BOT_TOKEN, CHAT_IDS  # TODO replace this with something smarter
 
-BOT_TOKEN = "5035559238:AAECCaFjCuToYx8EtTovtviFnsyvL9bo49Y"
-CHAT_IDS = {
-    "Manuel": "741006099",
-    "Verena": "740829591",
-}
 
 bot = telegram.Bot(BOT_TOKEN)
 
