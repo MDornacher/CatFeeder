@@ -12,10 +12,10 @@ from stream import start_stream, capture_frame
 
 NIGHT_INTERVAL = 5 * 60  # seconds
 SECONDS_BETWEEN_FRAMES = 0.5
-CONSECUTIVE_MATCHES = 5
+CONSECUTIVE_MATCHES = 3
 PHOTO_COOLDOWN = 1 * 60  # seconds
 CLASSIFIER_THRESHOLD = 0.7
-BANK_HOURS = (datetime.time(10), datetime.time(15))
+BANK_HOURS = (datetime.time(9, 30), datetime.time(15, 30))
 
 
 class Bank:
@@ -48,6 +48,9 @@ class Bank:
                 for cat in self.cats.values():
                     cat.reset_balance()
 
+            # start of regular cycle
+            self.last_run = datetime.datetime.now().time()
+
             # run classifier on frame
             frame = capture_frame(self.video_stream)
             match, certainty = self.classifier.evaluate(frame)
@@ -63,6 +66,7 @@ class Bank:
 
             if self.cats[match].feed(FOOD_PACKAGE_SIZE):
                 self.feeder.dispense_food()
+                # TODO: take some time to validate choice
 
             if (
                 self.last_photo is None
@@ -74,7 +78,6 @@ class Bank:
 
             # control video capture cycle length
             time.sleep(SECONDS_BETWEEN_FRAMES)
-            self.last_run = datetime.datetime.now().time()
 
     def _is_open(self):
         start_time, end_time = self.bank_hours
