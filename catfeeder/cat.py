@@ -1,4 +1,5 @@
 import datetime
+from pathlib import Path
 
 from loguru import logger
 
@@ -8,12 +9,16 @@ from notifications import bot, CHAT_IDS
 DAILY_FOOD_BALANCE = 6  # gram
 FEEDING_COOLDOWN = 90 * 60  # seconds
 
+CAT_ACTION_LOG = Path("/home/pi/cat_actions.log")
+
 
 class Cat:
     def __init__(self, name):
         self.name = name
         self.food_balance = DAILY_FOOD_BALANCE
         self.last_feeding = None
+        if not CAT_ACTION_LOG.exists():
+            CAT_ACTION_LOG.touch()
 
     def feed(self, package_size) -> bool:
         if self.last_feeding is not None:
@@ -47,6 +52,8 @@ class Cat:
                 f"({DAILY_FOOD_BALANCE - self.food_balance}g total today)",
             )
         self.last_feeding = datetime.datetime.now()
+        with open(CAT_ACTION_LOG, "a") as log_ref:
+            log_ref.write(f"{self.last_feeding}\t{self.name}\t{package_size}\n")
         return True
 
     def reset_balance(self) -> None:
