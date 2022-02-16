@@ -3,40 +3,41 @@
 Distinguish cats with automated cat feeder
 
 ---
-# TODO:
+## TODO:
 
 
-## Hardware
-### Essential
+### Hardware
+#### Essential
 - [ ] Update camera mount with smaller hooks and better support
 - [ ] Reprint camera mount
-### Optional
-- [ ] Switch Raspberry Pi Zero with Raspberry Pi 4
+- [X] Switch Raspberry Pi Zero with Raspberry Pi 4
+#### Optional
 - [ ] Add physical buttons (pause, reset, on-off switch)
 - [ ] LED indicator
 - [ ] Clean up cables
-- [ ] Monitor performance
+- [ ] Add tinker warning system
+- [X] Monitor performance
 
 
-## Software
-### Essential
-- [ ] Implement classifier
-- [ ] Add webcam stream
-### Optional
-- [ ] Write clean log of feeding events for data analysis (e.g. with pandas)
+### Software
+#### Essential
+- [X] Implement classifier
+- [X] Add webcam stream
+#### Optional
 - [ ] Add unit and integration tests
 - [ ] Wrap into service
+- [X] Write clean log of feeding events for data analysis (e.g. with pandas)
 
 
-## Classifier
-### Essential
-- [ ] Install tensorflow lite
-### Optional
-- [ ] Optimize model for speed (and accuracy)
+### Classifier
+#### Essential
+- [X] Install tensorflow lite
+#### Optional
+- [X] Optimize model for speed (and accuracy)
 
 
-## Publish
-- [ ] Proper secret handling for open sourcing project
+### Publish
+- [X] ~~Proper~~ secret handling for open sourcing project
 - [ ] Collect / export all 3D models
 - [ ] Draw circuit
 - [ ] Write instructions
