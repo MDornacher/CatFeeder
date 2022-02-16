@@ -63,10 +63,14 @@ class Cat:
         self.food_balance = DAILY_FOOD_BALANCE
 
     def send_daily_report(self) -> None:
-        daily_report = f"{self.name.upper()} DAILY REPORT" \
-                       f"\nFood consumed: {DAILY_FOOD_BALANCE - self.food_balance}g" \
-                       f"\nLast feeding: {self.last_feeding}"
-        if self.food_balance > 0.:
-            daily_report += f"\n\U000026A0 {self.food_balance}g food unclaimed \U000026A0"
+        daily_report = (
+            f"{self.name.upper()}'S DAILY REPORT"
+            f"\nFood consumed: {DAILY_FOOD_BALANCE - self.food_balance}g"
+            f"\nLast feeding: {self.last_feeding}"
+        )
+        if self.food_balance > 0.0:
+            daily_report += (
+                f"\n\U000026A0 {self.food_balance}g food unclaimed \U000026A0"
+            )
         for chat_id in CHAT_IDS.values():
             bot.sendMessage(chat_id, daily_report)

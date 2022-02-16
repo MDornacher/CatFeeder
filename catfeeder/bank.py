@@ -10,8 +10,7 @@ from feeder import Feeder, FOOD_PACKAGE_SIZE
 from notifications import send_boot_up_notifications, send_frame
 from stream import start_stream, capture_frame
 
-NIGHT_INTERVAL = 5 * 60  # seconds
-SECONDS_BETWEEN_FRAMES = 0.5
+SECONDS_BETWEEN_FRAMES = 1
 CONSECUTIVE_MATCHES = 3
 PHOTO_COOLDOWN = 1 * 60  # seconds
 CLASSIFIER_THRESHOLD = 0.7
@@ -29,27 +28,18 @@ class Bank:
         }
 
         self.bank_hours = BANK_HOURS
-        self.short_term_match_history = deque([None] * CONSECUTIVE_MATCHES, maxlen=CONSECUTIVE_MATCHES)
+        self.short_term_match_history = deque(
+            [None] * CONSECUTIVE_MATCHES, maxlen=CONSECUTIVE_MATCHES
+        )
         self.last_photo = None
-        self.active = True
 
     def run(self):
         send_boot_up_notifications()
         while True:
             # effectively pause program during off hours
             if not self._is_open():
-                # TODO: do this with just one sleep cycle
-                if self.active:
-                    logger.info("Resetting daily food balance and sending daily reports")
-                    for cat in self.cats.values():
-                        cat.reset_balance()
-                        cat.send_daily_report()
-                    logger.info("Food bank is now closed for today")
-                    self.active = False
-                time.sleep(NIGHT_INTERVAL)
+                self._closing_procedure()
                 continue
-            else:
-                self.active = True
 
             # run classifier on frame
             frame = capture_frame(self.video_stream)
@@ -70,8 +60,7 @@ class Bank:
 
             if (
                 self.last_photo is None
-                or (datetime.datetime.now() - self.last_photo).seconds
-                > PHOTO_COOLDOWN
+                or (datetime.datetime.now() - self.last_photo).seconds > PHOTO_COOLDOWN
             ):
                 send_frame(frame, self.cats[match].name)
                 self.last_photo = datetime.datetime.now()
@@ -83,10 +72,27 @@ class Bank:
         start_time, end_time = self.bank_hours
         if start_time < datetime.datetime.now().time() < end_time:
             return True
-        logger.info(
-            f"Bank is currently closed and will open again at {start_time}"
-        )
         return False
+
+    def _closing_procedure(self):
+        logger.info("Food bank is now closing for today")
+        logger.info("Resetting daily food balance and sending daily reports")
+        for cat in self.cats.values():
+            cat.reset_balance()
+            cat.send_daily_report()
+        opening_time, _ = BANK_HOURS
+        tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+        sleep_duration = (
+            datetime.datetime.combine(tomorrow, opening_time) - datetime.datetime.now()
+        )
+        logger.info(
+            f"Food bank opens again at {opening_time} "
+            f"(in {sleep_duration / 3600} hours)"
+        )
+        self.video_stream.release()
+        time.sleep(sleep_duration.seconds)
+        logger.info("Reopening the bank now")
+        self.video_stream = start_stream()
 
     def stop(self):
         logger.info("Gracefully stopping program")
