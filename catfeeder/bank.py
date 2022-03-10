@@ -97,14 +97,17 @@ class Bank:
         for cat in self.cats.values():
             cat.reset_balance()
             cat.send_daily_report()
-        opening_time, _ = BANK_HOURS
-        tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+        opening_time, closing_time = BANK_HOURS
+        if datetime.datetime.now().time() > closing_time:
+            opening_day = datetime.date.today() + datetime.timedelta(days=1)
+        else:
+            opening_day = datetime.date.today()
         sleep_duration = (
-            datetime.datetime.combine(tomorrow, opening_time) - datetime.datetime.now()
+            datetime.datetime.combine(opening_day, opening_time) - datetime.datetime.now()
         )
         logger.info(
             f"Food bank opens again at {opening_time} "
-            f"(in {sleep_duration / 3600} hours)"
+            f"(in {sleep_duration.seconds / 3600:.2f} hours)"
         )
         self.video_stream.release()
         time.sleep(sleep_duration.seconds)
