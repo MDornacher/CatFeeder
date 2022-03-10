@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import tflite_runtime.interpreter as tflite
 
+from notifications import send_classification_error, send_classification_confirmation
 
 MODEL_PATH = Path(__file__).parent.resolve() / "resources" / "model.tflite"
 LABELS_PATH = Path(__file__).parent.resolve() / "resources" / "labels.txt"
@@ -46,3 +47,13 @@ class Classifier:
 
         top_match, *_ = results.argsort()[::-1]
         return self.labels[top_match], float(results[top_match] / 255.0)
+
+    def validate(self, image, original_match) -> str:
+        validation_match, validation_certainty = self.evaluate(image)
+        if validation_match == original_match:
+            send_classification_confirmation(
+                image, validation_match, validation_certainty
+            )
+            return original_match
+        send_classification_error(image, original_match, validation_certainty)
+        return validation_match

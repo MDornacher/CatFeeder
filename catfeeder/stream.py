@@ -1,4 +1,6 @@
 import time
+import datetime
+from pathlib import Path
 
 import cv2
 from loguru import logger
@@ -23,3 +25,10 @@ def capture_frame(video_stream):
         video_stream = repair_stream(video_stream)
         ret, frame = capture_frame(video_stream)
     return frame
+
+
+def save_frame(frame):
+    file_name = f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.jpg"
+    file_path = Path(f"/home/pi/Pictures/{file_name}")
+    cv2.imwrite(str(file_path), frame)
+    return file_path
