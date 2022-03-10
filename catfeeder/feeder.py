@@ -35,6 +35,7 @@ class Feeder:
             logger.debug(f"Sending reminder to {recipient} ({chat_id})")
             bot.sendMessage(chat_id, message)
 
-    def shut_down(self) -> None:
+    @staticmethod
+    def shut_down() -> None:
         logger.info("Shutting down feeder")
         mechanics.teardown()

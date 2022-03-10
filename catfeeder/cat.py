@@ -33,7 +33,7 @@ class Cat:
     def food_consumed(self) -> int:
         return DAILY_FOOD_BALANCE - self.food_balance
 
-    def feed(self, package_size) -> bool:
+    def feed(self, package_size: int) -> bool:
         """
         Decide if food is allowed to be offered based on multiple conditions,
         while keeping track of feeding events.
@@ -65,7 +65,7 @@ class Cat:
         send_feeding_event(self.name, package_size, self.food_balance)
         return True
 
-    def amend_balance_up(self, package_size) -> None:
+    def amend_balance_up(self, package_size: int) -> None:
         """
         Correct for incorrectly subtracted food disposal.
         """
@@ -73,7 +73,7 @@ class Cat:
         self.change_balance(+package_size)
         self.last_feedings.appendleft(None)
 
-    def amend_balance_down(self, package_size) -> None:
+    def amend_balance_down(self, package_size: int) -> None:
         """
         Correct for food theft / false match.
         """
@@ -81,7 +81,7 @@ class Cat:
         self.change_balance(-package_size)
         self.last_feedings.append(datetime.datetime.now())
 
-    def change_balance(self, package_size) -> None:
+    def change_balance(self, package_size: int) -> None:
         """
         Wrap food balance change with different log events
         """

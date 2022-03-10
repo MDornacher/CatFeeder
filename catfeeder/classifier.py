@@ -35,7 +35,7 @@ class Classifier:
         self.input_details = self.interpreter.get_input_details()
         self.output_details = self.interpreter.get_output_details()
 
-    def evaluate(self, image):
+    def evaluate(self, image: np.ndarray) -> tuple[str, float]:
         image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image_resized = cv2.resize(image_rgb, (self.image_height, self.image_width))
 
@@ -48,7 +48,7 @@ class Classifier:
         top_match, *_ = results.argsort()[::-1]
         return self.labels[top_match], float(results[top_match] / 255.0)
 
-    def validate(self, image, original_match) -> str:
+    def validate(self, image: np.ndarray, original_match: str) -> str:
         validation_match, validation_certainty = self.evaluate(image)
         if validation_match == original_match:
             send_classification_confirmation(

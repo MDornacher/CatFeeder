@@ -39,7 +39,7 @@ class Bank:
         )
         self.last_photo = None
 
-    def run(self):
+    def run(self) -> None:
         send_boot_up_notifications()
         while True:
             # effectively pause program during off hours
@@ -103,7 +103,8 @@ class Bank:
         else:
             opening_day = datetime.date.today()
         sleep_duration = (
-            datetime.datetime.combine(opening_day, opening_time) - datetime.datetime.now()
+            datetime.datetime.combine(opening_day, opening_time)
+            - datetime.datetime.now()
         )
         logger.info(
             f"Food bank opens again at {opening_time} "
